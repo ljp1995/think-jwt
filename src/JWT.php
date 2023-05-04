@@ -195,7 +195,7 @@ class JWT
         } catch (UnexpectedValueException $unexpectedValueException) {
             throw new JWTTokenException('获取的扩展字段不存在');
         } catch (JWTCacheTokenException | \Exception $exception) {
-            throw new JWTTokenException($exception->getMessage());
+            throw new JWTTokenException($exception->getMessage(),$exception->getCode());
         }
     }
 
