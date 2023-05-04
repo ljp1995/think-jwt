@@ -117,15 +117,15 @@ class JWT
                 self::checkStoreRefreshToken((string) $extend['extend']['id'], $refreshToken);
             }
         } catch (SignatureInvalidException $signatureInvalidException) {
-            throw new JWTRefreshTokenExpiredException('刷新令牌无效');
+            throw new JWTRefreshTokenExpiredException('刷新令牌无效','401');
         } catch (BeforeValidException $beforeValidException) {
             throw new JWTRefreshTokenExpiredException('刷新令牌尚未生效');
         } catch (ExpiredException $expiredException) {
-            throw new JWTRefreshTokenExpiredException('刷新令牌会话已过期，请再次登录！');
+            throw new JWTRefreshTokenExpiredException('刷新令牌会话已过期，请再次登录！','401');
         } catch (UnexpectedValueException $unexpectedValueException) {
             throw new JWTRefreshTokenExpiredException('刷新令牌获取的扩展字段不存在');
         } catch (JWTStoreRefreshTokenExpiredException $expiredException) {
-            throw new JWTRefreshTokenExpiredException('存储刷新令牌会话已过期，请再次登录！');
+            throw new JWTRefreshTokenExpiredException('存储刷新令牌会话已过期，请再次登录！','401');
         } catch (JwtCacheTokenException | \Exception $exception) {
             throw new JWTRefreshTokenExpiredException($exception->getMessage());
         }
@@ -184,13 +184,14 @@ class JWT
             }
             return $extend;
         } catch (SignatureInvalidException $signatureInvalidException) {
-            throw new JWTTokenException('身份验证令牌无效');
+
+            throw new JWTTokenException('身份验证令牌无效','401');
         } catch (BeforeValidException $beforeValidException) {
-            throw new JWTTokenException('身份验证令牌尚未生效');
+            throw new JWTTokenException('身份验证令牌尚未生效','400');
         } catch (ExpiredException $expiredException) {
-            throw new JWTTokenExpiredException('身份验证会话已过期，请重新登录！');
+            throw new JWTTokenExpiredException('身份验证会话已过期，请重新登录！','401');
         } catch (JWTRefreshTokenExpiredException $forceExpiredException) {
-            throw new JWTRefreshTokenExpiredException('身份验证会话已过期，请重新登录！(暴力)');
+            throw new JWTRefreshTokenExpiredException('身份验证会话已过期，请重新登录！(暴力)','401');
         } catch (UnexpectedValueException $unexpectedValueException) {
             throw new JWTTokenException('获取的扩展字段不存在');
         } catch (JWTCacheTokenException | \Exception $exception) {
@@ -227,11 +228,11 @@ class JWT
     {
         $authorization = request()->header('authorization');
         if (!$authorization || 'undefined' == $authorization) {
-            throw new JWTTokenException('身份验证会话已过期，请重新登录！');
+            throw new JWTTokenException('身份验证会话已过期，请重新登录！','401');
         }
 
         if (self::REFRESH_TOKEN != substr_count($authorization, '.')) {
-            throw new JWTTokenException('身份验证会话已过期，请重新登录！');
+            throw new JWTTokenException('身份验证会话已过期，请重新登录！','401');
         }
 
         if (2 != count(explode(' ', $authorization))) {
